@@ -3,272 +3,394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultra PDF Converter - Faizan Ahmad</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Ultimate PDF Studio - Faizan Ahmad</title>
+    
+    <!-- Libraries -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
+            --primary: #4f46e5;       /* Indigo 600 */
+            --primary-hover: #4338ca; /* Indigo 700 */
+            --secondary: #ec4899;     /* Pink 500 */
+            --bg-gradient: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
+            --surface: rgba(255, 255, 255, 0.85);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --success: #10b981;
             --danger: #ef4444;
-            --bg: #f3f4f6;
-            --card-bg: #ffffff;
-            --text: #1f2937;
+            --radius: 16px;
         }
+
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background-color: var(--bg);
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: var(--bg-gradient);
             margin: 0;
-            padding: 20px;
-            color: var(--text);
+            padding: 0;
             min-height: 100vh;
+            color: var(--text-main);
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        .container {
+
+        /* --- HEADER --- */
+        header {
             width: 100%;
-            max-width: 900px;
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .brand {
+            font-size: 22px;
+            font-weight: 800;
+            background: -webkit-linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- MAIN CONTAINER --- */
+        .app-container {
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px;
+            flex: 1;
             display: flex;
             flex-direction: column;
-            margin-bottom: 20px;
+            gap: 20px;
         }
-        .header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            padding: 25px;
-            color: white;
-            text-align: center;
-        }
-        .header h1 { margin: 0; font-size: 24px; }
-        .header p { margin: 5px 0 0; opacity: 0.9; font-size: 14px; }
-        .toolbar {
-            padding: 15px 25px;
-            background: #f9fafb;
-            border-bottom: 1px solid #e5e7eb;
+
+        /* --- CONTROLS BAR --- */
+        .controls-panel {
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            border: var(--glass-border);
+            padding: 20px;
+            border-radius: var(--radius);
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             align-items: center;
             justify-content: space-between;
         }
-        .setting-group { display: flex; align-items: center; gap: 10px; }
-        label { font-size: 14px; font-weight: 600; color: #4b5563; }
-        select, input[type="range"] { padding: 5px; border-radius: 4px; border: 1px solid #d1d5db; }
-        .upload-zone {
-            margin: 20px;
-            border: 2px dashed #d1d5db;
-            border-radius: 12px;
+
+        .control-group { display: flex; flex-direction: column; gap: 5px; min-width: 120px; flex: 1; }
+        .control-group label { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
+        
+        select, input[type="text"] {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            font-size: 14px;
+            color: var(--text-main);
+            transition: 0.2s;
+        }
+        select:focus, input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+
+        /* Range Slider */
+        input[type=range] { height: 6px; background: #e2e8f0; border-radius: 5px; -webkit-appearance: none; margin-top: 8px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: var(--primary); cursor: pointer; transition: transform 0.1s; }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        /* --- UPLOAD AREA --- */
+        .upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: var(--radius);
+            background: rgba(255,255,255,0.5);
             padding: 40px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
-            background: #f9fafb;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .upload-zone:hover { border-color: var(--primary); background: #eef2ff; }
-        .upload-zone i { font-size: 40px; color: var(--primary); margin-bottom: 10px; }
+        .upload-area:hover { border-color: var(--primary); background: #eef2ff; transform: translateY(-2px); }
+        .upload-area i { font-size: 48px; color: var(--primary); margin-bottom: 15px; opacity: 0.8; }
+        .upload-area h3 { margin: 0; font-size: 18px; color: var(--text-main); }
+        .upload-area p { margin: 5px 0 0; color: var(--text-muted); font-size: 14px; }
+
+        /* --- IMAGE GRID --- */
+        .grid-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .badge-count { background: var(--text-main); color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+
         .image-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            padding: 0 25px 25px;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
         }
+
         .img-card {
             background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             position: relative;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-            cursor: move;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: grab;
         }
-        .img-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .img-preview {
-            width: 100%;
-            height: 120px;
-            object-fit: cover;
-            border-radius: 6px;
-            background-color: #eee;
-        }
-        .card-actions { display: flex; justify-content: space-between; margin-top: 8px; }
-        .btn-icon {
-            background: #f3f4f6;
-            border: none;
-            border-radius: 4px;
-            padding: 5px 10px;
-            cursor: pointer;
-            color: #4b5563;
-            transition: 0.2s;
-        }
-        .btn-icon:hover { background: #e5e7eb; }
-        .btn-delete:hover { background: #fee2e2; color: var(--danger); }
-        .footer {
-            padding: 20px 25px;
-            background: white;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        .filename-input { flex: 1; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; outline: none; }
-        .btn-primary {
+        .img-card:active { cursor: grabbing; }
+        .img-card.sortable-ghost { opacity: 0.4; background: #e2e8f0; }
+        .img-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
+        .page-number {
+            position: absolute;
+            top: -8px; left: -8px;
             background: var(--primary);
             color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
             font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 10;
         }
-        .btn-primary:hover { background: var(--primary-dark); }
-        .btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
-        .btn-clear {
-            background: transparent;
-            border: 1px solid var(--danger);
-            color: var(--danger);
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        .btn-clear:hover { background: #fee2e2; }
 
-        /* COPYRIGHT SECTION */
+        .img-preview {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #f1f5f9;
+        }
+
+        .card-tools {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+        }
+
+        .tool-btn {
+            background: #f8fafc;
+            border: none;
+            color: var(--text-muted);
+            width: 32px; height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .tool-btn:hover { background: #e2e8f0; color: var(--primary); }
+        .tool-btn.delete:hover { background: #fef2f2; color: var(--danger); }
+
+        /* --- GENERATE BUTTON --- */
+        .action-bar {
+            position: sticky;
+            bottom: 20px;
+            display: flex;
+            justify-content: center;
+            z-index: 90;
+            padding: 0 20px;
+        }
+
+        .btn-generate {
+            background: var(--text-main);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-generate:hover { transform: translateY(-2px) scale(1.02); background: black; }
+        .btn-generate:disabled { background: #94a3b8; cursor: not-allowed; transform: none; }
+
+        /* --- COPYRIGHT --- */
         .copyright-section {
             margin-top: auto;
             text-align: center;
-            padding: 20px;
+            padding: 30px 20px;
             width: 100%;
+            background: white;
+            border-top: 1px solid #e2e8f0;
         }
-        .copyright-text {
-            color: #008000;
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-        .copyright-link {
-            text-decoration: none;
-            display: inline-block;
-            transition: transform 0.2s;
-        }
-        .copyright-link:hover { transform: scale(1.05); }
+        .copyright-text { color: #008000; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+        
+        /* Updated Link Style */
+        .copyright-link { text-decoration: none; display: inline-block; transition: 0.3s; }
         .copyright-name {
             color: #008000;
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             margin: 0;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            background: linear-gradient(to right, #008000, #00b300);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
+        .copyright-link:hover { transform: scale(1.05); filter: drop-shadow(0 4px 6px rgba(0,128,0,0.2)); }
 
-        /* POPUP RESULT STYLE (NEW) */
-        #resultOverlay {
+        /* --- MODAL --- */
+        .modal-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
         }
-        .result-box {
+        .modal-box {
             background: white;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 20px;
             padding: 30px;
-            border-radius: 12px;
             text-align: center;
-            width: 350px; /* Thoda chora kiya */
-            animation: popIn 0.3s;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .success-icon { font-size: 50px; color: #10b981; margin-bottom: 15px; }
-        .download-btn {
+        @keyframes modalPop { from { transform: scale(0.8) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+
+        .btn-download {
             display: block;
-            background: #10b981;
+            width: 100%;
+            background: var(--success);
             color: white;
+            padding: 15px;
+            border-radius: 12px;
             text-decoration: none;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 15px;
             font-weight: bold;
-            margin-bottom: 15px;
+            font-size: 16px;
+            margin: 20px 0;
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+            transition: 0.2s;
         }
+        .btn-download:hover { background: #059669; transform: translateY(-2px); }
 
-        /* NEW LINK BOX STYLES */
-        .link-container {
+        .copy-box {
             display: flex;
-            gap: 5px;
-            background: #f1f1f1;
+            background: #f1f5f9;
             padding: 5px;
-            border-radius: 6px;
-            border: 1px solid #ddd;
-            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
         }
-        .link-input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 5px;
-            font-size: 12px;
-            color: #555;
-            outline: none;
-        }
-        .copy-btn {
-            background: #6366f1;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .copy-btn:hover { background: #4f46e5; }
+        .copy-input { flex: 1; background: transparent; border: none; padding: 8px; font-size: 13px; color: var(--text-muted); }
+        .btn-copy { background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 12px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--primary); }
+        .btn-copy:hover { background: #f8fafc; border-color: var(--primary); }
 
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        /* Toast Notification */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 50px;
+            padding: 16px;
+            position: fixed;
+            z-index: 2000;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1><i class="fas fa-file-pdf"></i> Ultra PDF Converter</h1>
-        <p>Rearrange, Rotate & Compress Images before converting</p>
-    </div>
+<!-- Header -->
+<header>
+    <div class="brand"><i class="fas fa-layer-group"></i> Ultimate PDF Studio</div>
+</header>
 
-    <div class="toolbar">
-        <div class="setting-group">
-            <label><i class="fas fa-compress-arrows-alt"></i> Quality:</label>
-            <input type="range" id="qualityRange" min="0.1" max="1.0" step="0.1" value="0.8">
-            <span id="qualityVal" style="font-size: 12px; color: #666;">80%</span>
+<div class="app-container">
+    
+    <!-- Controls -->
+    <div class="controls-panel">
+        <div class="control-group">
+            <label>Output Filename</label>
+            <input type="text" id="fileName" value="My-Scanned-Doc" placeholder="File Name">
         </div>
-        <div class="setting-group">
-            <label><i class="fas fa-border-style"></i> Margin:</label>
-            <select id="marginSelect">
-                <option value="none">Fit Page (No Margin)</option>
-                <option value="small">Small Margin</option>
-                <option value="large">Large Margin</option>
+        
+        <div class="control-group">
+            <label>Page Size</label>
+            <select id="pageSize">
+                <option value="a4">A4 (Standard)</option>
+                <option value="letter">Letter (US)</option>
             </select>
         </div>
+
+        <div class="control-group">
+            <label>Orientation</label>
+            <select id="orientation">
+                <option value="p">Portrait (Vertical)</option>
+                <option value="l">Landscape (Horizontal)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Margins</label>
+            <select id="marginSelect">
+                <option value="none">Full Bleed (None)</option>
+                <option value="small" selected>Small (Print Safe)</option>
+                <option value="large">Large (Formal)</option>
+            </select>
+        </div>
+
+        <div class="control-group" style="min-width: 150px;">
+            <label>Image Quality: <span id="qualityVal">80%</span></label>
+            <input type="range" id="qualityRange" min="0.1" max="1.0" step="0.1" value="0.8">
+        </div>
+        
+        <div class="control-group" style="flex:0;">
+            <label>&nbsp;</label>
+            <button onclick="clearAll()" style="background:var(--danger); color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer;"><i class="fas fa-trash"></i></button>
+        </div>
     </div>
 
-    <div class="upload-zone" id="dropZone">
+    <!-- Upload -->
+    <div class="upload-area" id="dropZone">
         <input type="file" id="fileInput" multiple accept="image/*" style="display:none">
-        <i class="fas fa-cloud-upload-alt"></i>
+        <i class="fas fa-cloud-arrow-up"></i>
         <h3>Click or Drag Images Here</h3>
-        <p style="color:#666">Supports JPG, PNG, WEBP</p>
+        <p>Supports High-Res JPG, PNG, WEBP</p>
     </div>
 
+    <!-- Grid -->
+    <div class="grid-header">
+        <span style="font-weight:700; color:var(--text-muted)">Selected Images</span>
+        <span class="badge-count" id="countBadge">0 Files</span>
+    </div>
     <div class="image-grid" id="imageGrid"></div>
 
-    <div class="footer">
-        <button class="btn-clear" onclick="clearAll()">Clear All</button>
-        <input type="text" id="fileName" class="filename-input" placeholder="Enter file name (e.g. My-Scanned-Docs)" value="My-Document">
-        <button class="btn-primary" id="generateBtn" onclick="generatePDF()">Generate PDF Link</button>
-    </div>
 </div>
 
+<!-- Sticky Action Bar -->
+<div class="action-bar">
+    <button class="btn-generate" id="generateBtn" onclick="generatePDF()" disabled>
+        <i class="fas fa-magic"></i> Generate PDF
+    </button>
+</div>
+
+<!-- Copyright Section -->
 <div class="copyright-section">
     <div class="copyright-text">© 2025 Faizan Ahmad All Rights Reserved.</div>
     <a href="https://www.facebook.com" target="_blank" class="copyright-link">
@@ -276,110 +398,276 @@
     </a>
 </div>
 
-<!-- Updated Result Modal -->
-<div id="resultOverlay">
-    <div class="result-box">
-        <div class="success-icon"><i class="fas fa-check-circle"></i></div>
-        <h3>PDF Ready!</h3>
-        <p>Download directly or copy the link below.</p>
+<!-- Result Modal -->
+<div class="modal-overlay" id="resultModal">
+    <div class="modal-box">
+        <div style="font-size:50px; color:var(--success); margin-bottom:15px;"><i class="fas fa-check-circle"></i></div>
+        <h2 style="margin:0;">PDF Ready!</h2>
+        <p style="color:var(--text-muted);">Your document has been compiled successfully.</p>
         
-        <a id="finalDownloadLink" href="#" class="download-btn" target="_blank" download>
-            <i class="fas fa-download"></i> Download Now
+        <a href="#" id="finalDownloadLink" class="btn-download" download target="_blank">
+            <i class="fas fa-download"></i> Download PDF
         </a>
 
-        <!-- COPY LINK SECTION ADDED HERE -->
-        <div class="link-container">
-            <input type="text" id="generatedLinkInput" class="link-input" readonly value="Generating...">
-            <button class="copy-btn" onclick="copyLink()">Copy</button>
+        <div class="copy-box">
+            <input type="text" id="linkInput" class="copy-input" readonly value="...">
+            <button class="btn-copy" onclick="copyToClipboard()"><i class="fas fa-copy"></i> Copy</button>
         </div>
-
-        <button onclick="closeModal()" style="margin-top:10px; background:none; border:none; color:#666; cursor:pointer">Close</button>
+        
+        <button onclick="closeModal()" style="margin-top:20px; background:none; border:none; color:var(--text-muted); cursor:pointer; font-weight:600;">Close</button>
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+<!-- Toast -->
+<div id="toast">Notification Message</div>
+
 <script>
+    // --- VARIABLES ---
     const fileInput = document.getElementById('fileInput');
     const dropZone = document.getElementById('dropZone');
     const grid = document.getElementById('imageGrid');
-    const qualityRange = document.getElementById('qualityRange');
-    const qualityVal = document.getElementById('qualityVal');
-    let imageStore = {}; 
+    const generateBtn = document.getElementById('generateBtn');
+    let imageStore = {};
     let uniqueIdCounter = 0;
-    new Sortable(grid, { animation: 150, ghostClass: 'sortable-ghost' });
+
+    // --- SORTABLE JS (Drag & Drop Reordering) ---
+    const sortable = new Sortable(grid, {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        onEnd: updatePageNumbers // Update numbers after drag
+    });
+
+    // --- EVENT LISTENERS ---
     dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = '#6366f1'; });
-    dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = '#d1d5db'; });
-    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.borderColor = '#d1d5db'; handleFiles(e.dataTransfer.files); });
-    fileInput.addEventListener('change', (e) => { handleFiles(e.target.files); fileInput.value = ''; });
-    qualityRange.addEventListener('input', (e) => { qualityVal.innerText = Math.round(e.target.value * 100) + "%"; });
-    function handleFiles(files) { Array.from(files).forEach(file => { if (!file.type.startsWith('image/')) return; const reader = new FileReader(); reader.onload = (e) => { addImageToGrid(e.target.result); }; reader.readAsDataURL(file); }); }
-    function addImageToGrid(base64Data) { uniqueIdCounter++; const id = `img-${uniqueIdCounter}`; imageStore[id] = { src: base64Data, rotation: 0 }; const div = document.createElement('div'); div.className = 'img-card'; div.setAttribute('data-id', id); div.innerHTML = `<img src="${base64Data}" class="img-preview" id="preview-${id}"><div class="card-actions"><button class="btn-icon" onclick="rotateImage('${id}')" title="Rotate"><i class="fas fa-redo"></i></button><button class="btn-icon btn-delete" onclick="removeImage(this, '${id}')" title="Delete"><i class="fas fa-times"></i></button></div>`; grid.appendChild(div); }
-    window.rotateImage = function(id) { const imgData = imageStore[id]; imgData.rotation = (imgData.rotation + 90) % 360; const imgEl = document.getElementById(`preview-${id}`); imgEl.style.transform = `rotate(${imgData.rotation}deg)`; };
-    window.removeImage = function(btn, id) { btn.closest('.img-card').remove(); delete imageStore[id]; };
-    window.clearAll = function() { if(confirm("Clear all images?")) { grid.innerHTML = ''; imageStore = {}; } };
     
-    async function generatePDF() { 
-        const cards = grid.querySelectorAll('.img-card'); 
-        if (cards.length === 0) { alert("Please add images first!"); return; } 
-        const btn = document.getElementById('generateBtn'); 
-        btn.innerText = "Processing..."; btn.disabled = true; 
-        const { jsPDF } = window.jspdf; 
-        const doc = new jsPDF(); 
-        const marginSetting = document.getElementById('marginSelect').value; 
-        const quality = parseFloat(document.getElementById('qualityRange').value); 
-        for (let i = 0; i < cards.length; i++) { 
-            const id = cards[i].getAttribute('data-id'); 
-            const data = imageStore[id]; 
-            const finalImgData = await getRotatedImage(data.src, data.rotation, quality); 
-            const imgProps = doc.getImageProperties(finalImgData); 
-            const pdfWidth = doc.internal.pageSize.getWidth(); 
-            const pdfHeight = doc.internal.pageSize.getHeight(); 
-            let x = 0, y = 0, w = pdfWidth, h = 0; 
-            let margin = 0; 
-            if (marginSetting === 'small') margin = 10; 
-            if (marginSetting === 'large') margin = 20; 
-            const usableWidth = pdfWidth - (margin * 2); 
-            const usableHeight = pdfHeight - (margin * 2); 
-            const ratio = imgProps.width / imgProps.height; 
-            w = usableWidth; h = w / ratio; 
-            if (h > usableHeight) { h = usableHeight; w = h * ratio; } 
-            x = margin + (usableWidth - w) / 2; y = margin + (usableHeight - h) / 2; 
-            if (i > 0) doc.addPage(); 
-            doc.addImage(finalImgData, 'JPEG', x, y, w, h); 
-        } 
-        let name = document.getElementById('fileName').value.trim() || 'document'; 
-        if(!name.endsWith('.pdf')) name += '.pdf'; 
-        const pdfBlob = doc.output('blob'); 
-        const url = URL.createObjectURL(pdfBlob); 
-        
-        // Setup Download Button
-        document.getElementById('finalDownloadLink').href = url; 
-        document.getElementById('finalDownloadLink').download = name; 
-        
-        // Setup Copy Link Input
-        document.getElementById('generatedLinkInput').value = url;
+    // Drag effects
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--primary)';
+            dropZone.style.background = '#e0e7ff';
+        }, false);
+    });
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#cbd5e1';
+            dropZone.style.background = 'rgba(255,255,255,0.5)';
+        }, false);
+    });
 
-        document.getElementById('resultOverlay').style.display = 'flex'; 
-        btn.innerText = "Generate PDF Link"; btn.disabled = false; 
+    dropZone.addEventListener('drop', (e) => handleFiles(e.dataTransfer.files));
+    fileInput.addEventListener('change', (e) => { handleFiles(e.target.files); fileInput.value = ''; });
+
+    document.getElementById('qualityRange').addEventListener('input', (e) => {
+        document.getElementById('qualityVal').innerText = Math.round(e.target.value * 100) + "%";
+    });
+
+    // --- CORE FUNCTIONS ---
+
+    function handleFiles(files) {
+        let added = 0;
+        Array.from(files).forEach(file => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => addImageCard(e.target.result);
+                reader.readAsDataURL(file);
+                added++;
+            }
+        });
+        if(added > 0) showToast(`${added} Images Added`);
     }
 
-    // Function to Copy Link
-    window.copyLink = function() {
-        const copyText = document.getElementById("generatedLinkInput");
+    function addImageCard(base64) {
+        uniqueIdCounter++;
+        const id = `img-${uniqueIdCounter}`;
+        imageStore[id] = { src: base64, rotation: 0 };
+
+        const div = document.createElement('div');
+        div.className = 'img-card';
+        div.setAttribute('data-id', id);
+        div.innerHTML = `
+            <div class="page-number">0</div>
+            <img src="${base64}" class="img-preview" id="preview-${id}">
+            <div class="card-tools">
+                <button class="tool-btn" onclick="rotateImg('${id}')" title="Rotate"><i class="fas fa-rotate-right"></i></button>
+                <button class="tool-btn delete" onclick="removeImg(this, '${id}')" title="Remove"><i class="fas fa-trash-alt"></i></button>
+            </div>
+        `;
+        grid.appendChild(div);
+        updateUI();
+    }
+
+    function rotateImg(id) {
+        const data = imageStore[id];
+        data.rotation = (data.rotation + 90) % 360;
+        document.getElementById(`preview-${id}`).style.transform = `rotate(${data.rotation}deg)`;
+    }
+
+    function removeImg(btn, id) {
+        btn.closest('.img-card').remove();
+        delete imageStore[id];
+        updateUI();
+    }
+
+    function clearAll() {
+        if (Object.keys(imageStore).length === 0) return;
+        if(confirm("Delete all images?")) {
+            grid.innerHTML = '';
+            imageStore = {};
+            updateUI();
+            showToast("All images cleared");
+        }
+    }
+
+    function updateUI() {
+        const cards = grid.querySelectorAll('.img-card');
+        generateBtn.disabled = cards.length === 0;
+        document.getElementById('countBadge').innerText = `${cards.length} Files`;
+        updatePageNumbers();
+    }
+
+    function updatePageNumbers() {
+        const cards = grid.querySelectorAll('.img-card');
+        cards.forEach((card, index) => {
+            card.querySelector('.page-number').innerText = index + 1;
+        });
+    }
+
+    // --- PDF GENERATION ENGINE ---
+    
+    async function generatePDF() {
+        const cards = grid.querySelectorAll('.img-card');
+        if (cards.length === 0) return;
+
+        // UI Loading State
+        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        generateBtn.disabled = true;
+
+        // Settings
+        const quality = parseFloat(document.getElementById('qualityRange').value);
+        const marginType = document.getElementById('marginSelect').value;
+        const pageSize = document.getElementById('pageSize').value; // 'a4' or 'letter'
+        const orientation = document.getElementById('orientation').value; // 'p' or 'l'
+        
+        const { jsPDF } = window.jspdf;
+        // Initialize PDF with user settings
+        const doc = new jsPDF({
+            orientation: orientation,
+            unit: 'mm',
+            format: pageSize
+        });
+
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        // Calculate Margin
+        let margin = 0;
+        if (marginType === 'small') margin = 10;
+        if (marginType === 'large') margin = 20;
+
+        const usableW = pageWidth - (margin * 2);
+        const usableH = pageHeight - (margin * 2);
+
+        // Process Images
+        for (let i = 0; i < cards.length; i++) {
+            const id = cards[i].getAttribute('data-id');
+            const data = imageStore[id];
+
+            // Wait for rotation processing
+            const processedImg = await processImage(data.src, data.rotation, quality);
+
+            // Calculate Dimensions (Fit to Page)
+            const imgProps = doc.getImageProperties(processedImg);
+            const imgRatio = imgProps.width / imgProps.height;
+            
+            let finalW = usableW;
+            let finalH = finalW / imgRatio;
+
+            // If height is too big, fit by height instead
+            if (finalH > usableH) {
+                finalH = usableH;
+                finalW = finalH * imgRatio;
+            }
+
+            // Center Image
+            const x = margin + (usableW - finalW) / 2;
+            const y = margin + (usableH - finalH) / 2;
+
+            if (i > 0) doc.addPage();
+            doc.addImage(processedImg, 'JPEG', x, y, finalW, finalH);
+        }
+
+        // Finalize
+        let fname = document.getElementById('fileName').value.trim() || 'Document';
+        if (!fname.toLowerCase().endsWith('.pdf')) fname += '.pdf';
+
+        const blob = doc.output('blob');
+        const url = URL.createObjectURL(blob);
+
+        // Update Modal
+        const dLink = document.getElementById('finalDownloadLink');
+        dLink.href = url;
+        dLink.download = fname;
+        
+        document.getElementById('linkInput').value = url;
+        document.getElementById('resultModal').style.display = 'flex';
+
+        // Reset Button
+        generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate PDF';
+        generateBtn.disabled = false;
+        showToast("PDF Generated Successfully!");
+    }
+
+    // Helper: Rotate & Compress
+    function processImage(src, rotation, quality) {
+        return new Promise(resolve => {
+            const img = new Image();
+            img.src = src;
+            img.onload = () => {
+                if(rotation === 0 && quality === 1.0) {
+                    resolve(src); // No change needed
+                    return;
+                }
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                if(rotation === 90 || rotation === 270) {
+                    canvas.width = img.height;
+                    canvas.height = img.width;
+                } else {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                }
+
+                ctx.translate(canvas.width/2, canvas.height/2);
+                ctx.rotate(rotation * Math.PI / 180);
+                ctx.drawImage(img, -img.width/2, -img.height/2);
+                
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+        });
+    }
+
+    // --- UTILS ---
+    function closeModal() {
+        document.getElementById('resultModal').style.display = 'none';
+    }
+
+    function copyToClipboard() {
+        const copyText = document.getElementById("linkInput");
         copyText.select();
-        copyText.setSelectionRange(0, 99999); // Mobile compatibility
+        copyText.setSelectionRange(0, 99999);
         navigator.clipboard.writeText(copyText.value);
-        
-        const copyBtn = document.querySelector('.copy-btn');
-        const originalText = copyBtn.innerText;
-        copyBtn.innerText = "Copied!";
-        setTimeout(() => copyBtn.innerText = originalText, 2000);
+        showToast("Link Copied to Clipboard!");
     }
 
-    function getRotatedImage(src, rotation, quality) { return new Promise((resolve) => { const img = new Image(); img.src = src; img.onload = () => { if (rotation === 0) {} const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); if (rotation === 90 || rotation === 270) { canvas.width = img.height; canvas.height = img.width; } else { canvas.width = img.width; canvas.height = img.height; } ctx.translate(canvas.width / 2, canvas.height / 2); ctx.rotate(rotation * Math.PI / 180); ctx.drawImage(img, -img.width / 2, -img.height / 2); resolve(canvas.toDataURL('image/jpeg', quality)); }; }); }
-    window.closeModal = function() { document.getElementById('resultOverlay').style.display = 'none'; }
+    function showToast(msg) {
+        const x = document.getElementById("toast");
+        x.innerText = msg;
+        x.className = "show";
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    }
 </script>
 
 </body>
