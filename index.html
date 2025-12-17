@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to PDF Link Generator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #eef2f3;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 350px;
+        }
+        h2 { color: #333; }
+        
+        /* Input Style */
+        input[type="file"] {
+            margin: 20px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border: 1px dashed #ccc;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Button Style */
+        .convert-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        .convert-btn:hover { background-color: #0056b3; }
+
+        /* Generated Link Style */
+        #linkContainer {
+            margin-top: 25px;
+            display: none; /* Pehle chhupa rahega */
+            padding: 15px;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 6px;
+        }
+        #pdfLink {
+            color: #155724;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        #pdfLink:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Image to PDF</h2>
+    
+    <input type="file" id="imageInput" accept="image/*">
+    
+    <button class="convert-btn" onclick="generatePDFLink()">Generate PDF Link</button>
+
+    <!-- Yahan Link Banega -->
+    <div id="linkContainer">
+        <p>✅ Link Ready:</p>
+        <a id="pdfLink" href="#" download="my-file.pdf" target="_blank">Download PDF Here</a>
+    </div>
+</div>
+
+<!-- PDF Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+    async function generatePDFLink() {
+        const { jsPDF } = window.jspdf;
+        const input = document.getElementById('imageInput');
+        const linkContainer = document.getElementById('linkContainer');
+        const pdfLink = document.getElementById('pdfLink');
+        const btn = document.querySelector('.convert-btn');
+
+        if (input.files && input.files[0]) {
+            // Button ka text badal kar loading dikhate hain
+            btn.innerText = "Generating Link...";
+            btn.disabled = true;
+
+            const file = input.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const imgData = event.target.result;
+                const img = new Image();
+                img.src = imgData;
+
+                img.onload = function() {
+                    const doc = new jsPDF();
+                    
+                    // Image ko A4 size ke hisaab se set karna
+                    const imgProps = doc.getImageProperties(imgData);
+                    const pdfWidth = doc.internal.pageSize.getWidth();
+                    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                    doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+
+                    // ***** IMPORTANT PART: LINK GENERATION *****
+                    
+                    // PDF ka Blob data banaya
+                    const pdfBlob = doc.output('blob');
+                    
+                    // Browser memory mein ek URL create kiya
+                    const url = URL.createObjectURL(pdfBlob);
+
+                    // Link tag (<a>) mein URL set kiya
+                    pdfLink.href = url;
+                    
+                    // Link ko dikhana (Show the link)
+                    linkContainer.style.display = 'block';
+
+                    // Button wapis normal karna
+                    btn.innerText = "Generate Again";
+                    btn.disabled = false;
+                };
+            };
+            reader.readAsDataURL(file);
+        } else {
+            alert("Please select an image first!");
+        }
+    }
+</script>
+
+</body>
+</html>
