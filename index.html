@@ -3,636 +3,604 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate PDF Studio - Faizan Ahmad</title>
+    <title>Titanium PDF Suite - Faizan Ahmad</title>
     
-    <!-- Libraries -->
+    <!-- External Libraries -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 
     <style>
         :root {
-            --primary: #4f46e5;       /* Indigo 600 */
-            --primary-hover: #4338ca; /* Indigo 700 */
-            --secondary: #ec4899;     /* Pink 500 */
-            --bg-gradient: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
-            --surface: rgba(255, 255, 255, 0.85);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.5);
-            --text-main: #1e293b;
-            --text-muted: #64748b;
+            --primary: #4338ca;       /* Indigo */
+            --accent: #0ea5e9;        /* Sky Blue */
+            --bg-dark: #0f172a;       /* Dark Blue/Black */
+            --bg-panel: #1e293b;      /* Slate */
+            --text-light: #f8fafc;
+            --text-gray: #94a3b8;
             --success: #10b981;
-            --danger: #ef4444;
-            --radius: 16px;
+            --border: #334155;
         }
 
-        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            font-family: 'Inter', 'Segoe UI', sans-serif;
-            background: var(--bg-gradient);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* --- HEADER --- */
-        header {
-            width: 100%;
-            background: white;
-            padding: 15px 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .brand {
-            font-size: 22px;
-            font-weight: 800;
-            background: -webkit-linear-gradient(45deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* --- MAIN CONTAINER --- */
-        .app-container {
-            width: 100%;
-            max-width: 1000px;
-            padding: 20px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* --- CONTROLS BAR --- */
-        .controls-panel {
-            background: var(--surface);
-            backdrop-filter: blur(10px);
-            border: var(--glass-border);
-            padding: 20px;
-            border-radius: var(--radius);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .control-group { display: flex; flex-direction: column; gap: 5px; min-width: 120px; flex: 1; }
-        .control-group label { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
+        * { box-sizing: border-box; outline: none; }
         
-        select, input[type="text"] {
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #cbd5e1;
-            background: white;
-            font-size: 14px;
-            color: var(--text-main);
-            transition: 0.2s;
-        }
-        select:focus, input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-
-        /* Range Slider */
-        input[type=range] { height: 6px; background: #e2e8f0; border-radius: 5px; -webkit-appearance: none; margin-top: 8px; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: var(--primary); cursor: pointer; transition: transform 0.1s; }
-        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
-
-        /* --- UPLOAD AREA --- */
-        .upload-area {
-            border: 2px dashed #cbd5e1;
-            border-radius: var(--radius);
-            background: rgba(255,255,255,0.5);
-            padding: 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .upload-area:hover { border-color: var(--primary); background: #eef2ff; transform: translateY(-2px); }
-        .upload-area i { font-size: 48px; color: var(--primary); margin-bottom: 15px; opacity: 0.8; }
-        .upload-area h3 { margin: 0; font-size: 18px; color: var(--text-main); }
-        .upload-area p { margin: 5px 0 0; color: var(--text-muted); font-size: 14px; }
-
-        /* --- IMAGE GRID --- */
-        .grid-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .badge-count { background: var(--text-main); color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; }
-
-        .image-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 20px;
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden; /* App-like feel */
         }
 
-        .img-card {
-            background: white;
-            border-radius: 12px;
-            padding: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            position: relative;
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: grab;
-        }
-        .img-card:active { cursor: grabbing; }
-        .img-card.sortable-ghost { opacity: 0.4; background: #e2e8f0; }
-        .img-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-
-        .page-number {
-            position: absolute;
-            top: -8px; left: -8px;
-            background: var(--primary);
-            color: white;
-            width: 24px; height: 24px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold;
-            font-size: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        /* --- SIDEBAR (SETTINGS) --- */
+        .sidebar {
+            width: 320px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
             z-index: 10;
         }
 
-        .img-preview {
-            width: 100%;
-            height: 140px;
-            object-fit: cover;
-            border-radius: 8px;
-            background: #f1f5f9;
+        .brand {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 30px;
+            color: white;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .brand span { color: var(--accent); }
+
+        .section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-gray);
+            margin-bottom: 10px;
+            margin-top: 20px;
+            font-weight: 700;
         }
 
-        .card-tools {
+        .control-box {
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        .input-field:focus { border-color: var(--accent); }
+
+        /* Quality Buttons */
+        .quality-group { display: flex; gap: 5px; background: #0f172a; padding: 5px; border-radius: 6px; border: 1px solid var(--border); }
+        .q-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-gray);
+            padding: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+        .q-btn.active { background: var(--primary); color: white; }
+
+        /* --- MAIN AREA --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            padding: 15px 30px;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
-            margin-top: 8px;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
         }
 
-        .tool-btn {
-            background: #f8fafc;
-            border: none;
-            color: var(--text-muted);
-            width: 32px; height: 32px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .tool-btn:hover { background: #e2e8f0; color: var(--primary); }
-        .tool-btn.delete:hover { background: #fef2f2; color: var(--danger); }
+        .file-stats { font-size: 13px; color: var(--text-gray); }
+        .file-stats b { color: white; }
 
-        /* --- GENERATE BUTTON --- */
-        .action-bar {
-            position: sticky;
-            bottom: 20px;
-            display: flex;
-            justify-content: center;
-            z-index: 90;
-            padding: 0 20px;
-        }
-
-        .btn-generate {
-            background: var(--text-main);
+        .action-btn {
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 16px 40px;
-            border-radius: 50px;
-            font-size: 16px;
-            font-weight: 700;
+            padding: 10px 25px;
+            border-radius: 6px;
+            font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+            display: flex; align-items: center; gap: 8px;
+            transition: 0.2s;
+        }
+        .action-btn:hover { background: #4f46e5; }
+        .action-btn:disabled { background: var(--border); cursor: not-allowed; }
+
+        /* Upload & Grid Area */
+        .workspace {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .upload-hero {
+            width: 100%;
+            max-width: 600px;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
             transition: 0.3s;
+            margin-bottom: 30px;
+        }
+        .upload-hero:hover { border-color: var(--accent); background: rgba(14, 165, 233, 0.05); }
+        .upload-hero i { font-size: 40px; color: var(--text-gray); margin-bottom: 10px; }
+
+        .grid-container {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+            padding-bottom: 100px; /* Space for footer */
+        }
+
+        .card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px;
+            position: relative;
+            cursor: grab;
+            transition: 0.2s;
+        }
+        .card:hover { border-color: var(--accent); transform: translateY(-3px); }
+        
+        .card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+            background: #000;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            padding: 0 4px;
+        }
+        .pg-num { font-size: 11px; color: var(--text-gray); font-weight: bold; }
+        
+        .icon-btn {
+            background: transparent; border: none; color: var(--text-gray);
+            cursor: pointer; transition: 0.2s; font-size: 14px;
+        }
+        .icon-btn:hover { color: white; }
+        .icon-btn.del:hover { color: #ef4444; }
+
+        /* --- FOOTER & LOG --- */
+        .footer-bar {
+            background: var(--bg-panel);
+            border-top: 1px solid var(--border);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+        
+        .console-log {
+            font-family: monospace;
+            color: var(--text-gray);
+        }
+        .console-log span { color: var(--accent); }
+
+        /* Requested Copyright Style */
+        .copyright-link {
+            text-decoration: none;
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        .btn-generate:hover { transform: translateY(-2px) scale(1.02); background: black; }
-        .btn-generate:disabled { background: #94a3b8; cursor: not-allowed; transform: none; }
-
-        /* --- COPYRIGHT --- */
-        .copyright-section {
-            margin-top: auto;
-            text-align: center;
-            padding: 30px 20px;
-            width: 100%;
-            background: white;
-            border-top: 1px solid #e2e8f0;
-        }
-        .copyright-text { color: #008000; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
-        
-        /* Updated Link Style */
-        .copyright-link { text-decoration: none; display: inline-block; transition: 0.3s; }
+        .copyright-text { color: #008000; font-weight: 500; }
         .copyright-name {
             color: #008000;
-            font-size: 24px;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            font-size: 14px;
             margin: 0;
-            background: linear-gradient(to right, #008000, #00b300);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
-        .copyright-link:hover { transform: scale(1.05); filter: drop-shadow(0 4px 6px rgba(0,128,0,0.2)); }
 
         /* --- MODAL --- */
-        .modal-overlay {
+        .modal-wrap {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.8);
             backdrop-filter: blur(5px);
-            z-index: 1000;
+            z-index: 100;
             justify-content: center;
             align-items: center;
         }
-        .modal-box {
-            background: white;
-            width: 90%;
-            max-width: 400px;
-            border-radius: 20px;
+        .modal {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
             padding: 30px;
-            text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes modalPop { from { transform: scale(0.8) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
-
-        .btn-download {
-            display: block;
-            width: 100%;
-            background: var(--success);
-            color: white;
-            padding: 15px;
             border-radius: 12px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 16px;
-            margin: 20px 0;
-            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
-            transition: 0.2s;
-        }
-        .btn-download:hover { background: #059669; transform: translateY(-2px); }
-
-        .copy-box {
-            display: flex;
-            background: #f1f5f9;
-            padding: 5px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
-        .copy-input { flex: 1; background: transparent; border: none; padding: 8px; font-size: 13px; color: var(--text-muted); }
-        .btn-copy { background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 12px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--primary); }
-        .btn-copy:hover { background: #f8fafc; border-color: var(--primary); }
-
-        /* Toast Notification */
-        #toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: #333;
-            color: #fff;
+            width: 400px;
             text-align: center;
-            border-radius: 50px;
-            padding: 16px;
-            position: fixed;
-            z-index: 2000;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 14px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+        
+        .success-checkmark {
+            width: 60px; height: 60px;
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px;
+            margin: 0 auto 20px;
+        }
+
+        .dl-btn {
+            display: block; width: 100%;
+            background: var(--success); color: white;
+            padding: 12px; border-radius: 6px;
+            text-decoration: none; font-weight: bold;
+            margin-top: 20px;
+        }
+        
+        .copy-group {
+            display: flex; margin-top: 15px;
+            background: var(--bg-dark); border-radius: 6px; padding: 4px;
+        }
+        .copy-input { flex: 1; background: transparent; border: none; color: white; font-size: 12px; padding: 5px; }
+        .cp-btn { background: var(--border); color: white; border: none; border-radius: 4px; cursor: pointer; padding: 5px 10px; font-size: 11px; }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body { flex-direction: column; overflow-y: auto; height: auto; }
+            .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+            .main-content { height: auto; }
+        }
 
     </style>
 </head>
 <body>
 
-<!-- Header -->
-<header>
-    <div class="brand"><i class="fas fa-layer-group"></i> Ultimate PDF Studio</div>
-</header>
+    <!-- SIDEBAR SETTINGS -->
+    <aside class="sidebar">
+        <div class="brand"><i class="fas fa-cube"></i> Titanium <span>Suite</span></div>
 
-<div class="app-container">
-    
-    <!-- Controls -->
-    <div class="controls-panel">
-        <div class="control-group">
-            <label>Output Filename</label>
-            <input type="text" id="fileName" value="My-Scanned-Doc" placeholder="File Name">
-        </div>
-        
-        <div class="control-group">
-            <label>Page Size</label>
-            <select id="pageSize">
-                <option value="a4">A4 (Standard)</option>
-                <option value="letter">Letter (US)</option>
+        <!-- File Settings -->
+        <div class="section-title">File Info</div>
+        <div class="control-box">
+            <input type="text" id="fileName" class="input-field" placeholder="Filename (e.g. Scanned_Docs)" oninput="saveSettings()">
+            <select id="pageSize" class="input-field" onchange="saveSettings()">
+                <option value="a4">A4 Size</option>
+                <option value="letter">Letter Size</option>
+                <option value="legal">Legal Size</option>
             </select>
-        </div>
-
-        <div class="control-group">
-            <label>Orientation</label>
-            <select id="orientation">
+            <select id="orientation" class="input-field" onchange="saveSettings()">
                 <option value="p">Portrait (Vertical)</option>
                 <option value="l">Landscape (Horizontal)</option>
             </select>
         </div>
 
-        <div class="control-group">
-            <label>Margins</label>
-            <select id="marginSelect">
-                <option value="none">Full Bleed (None)</option>
-                <option value="small" selected>Small (Print Safe)</option>
-                <option value="large">Large (Formal)</option>
-            </select>
+        <!-- PDF Metadata (New) -->
+        <div class="section-title">PDF Metadata</div>
+        <div class="control-box">
+            <input type="text" id="metaAuthor" class="input-field" placeholder="Author Name" oninput="saveSettings()">
+            <input type="text" id="metaSubject" class="input-field" placeholder="Subject / Title" oninput="saveSettings()">
         </div>
 
-        <div class="control-group" style="min-width: 150px;">
-            <label>Image Quality: <span id="qualityVal">80%</span></label>
-            <input type="range" id="qualityRange" min="0.1" max="1.0" step="0.1" value="0.8">
+        <!-- Compression (New) -->
+        <div class="section-title">Compression</div>
+        <div class="quality-group">
+            <button class="q-btn" id="qLow" onclick="setQuality(0.3, this)">Low</button>
+            <button class="q-btn active" id="qMed" onclick="setQuality(0.6, this)">Med</button>
+            <button class="q-btn" id="qHigh" onclick="setQuality(1.0, this)">Max</button>
         </div>
-        
-        <div class="control-group" style="flex:0;">
-            <label>&nbsp;</label>
-            <button onclick="clearAll()" style="background:var(--danger); color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer;"><i class="fas fa-trash"></i></button>
+
+        <div style="margin-top: auto; padding-top: 20px;">
+            <button onclick="clearAll()" style="width:100%; padding:10px; background:rgba(239, 68, 68, 0.1); color:#ef4444; border:1px solid #ef4444; border-radius:6px; cursor:pointer;">
+                <i class="fas fa-trash"></i> Reset All
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="main-content">
+        <div class="top-bar">
+            <div class="file-stats">
+                Images: <b id="countVal">0</b> | Size: <b id="sizeVal">0 MB</b>
+            </div>
+            <button class="action-btn" id="generateBtn" onclick="generatePDF()" disabled>
+                <i class="fas fa-bolt"></i> Generate PDF
+            </button>
+        </div>
+
+        <div class="workspace">
+            <div class="upload-hero" id="dropZone">
+                <input type="file" id="fileInput" multiple accept="image/*" style="display:none">
+                <i class="fas fa-cloud-arrow-up"></i>
+                <h3 style="margin:0; color:white;">Drop Images Here</h3>
+                <p style="margin:5px 0 0; font-size:13px; color:var(--text-gray);">or click to browse</p>
+            </div>
+
+            <div class="grid-container" id="imageGrid">
+                <!-- Cards inject here -->
+            </div>
+        </div>
+
+        <!-- FOOTER BAR -->
+        <footer class="footer-bar">
+            <div class="console-log" id="consoleLog">> Ready...</div>
+            
+            <!-- GREEN LINK SECTION -->
+            <a href="https://www.facebook.com" target="_blank" class="copyright-link">
+                <span class="copyright-text">© 2025</span>
+                <h2 class="copyright-name">MUHAMMAD FAIZAN AHMED</h2>
+            </a>
+        </footer>
+    </main>
+
+    <!-- MODAL -->
+    <div class="modal-wrap" id="resultModal">
+        <div class="modal">
+            <div class="success-checkmark"><i class="fas fa-check"></i></div>
+            <h2 style="color:white; margin:0;">PDF Generated</h2>
+            <p style="color:var(--text-gray); font-size:14px; margin-top:5px;">Your file is ready to export.</p>
+            
+            <a href="#" id="finalLink" class="dl-btn" download target="_blank">Download PDF</a>
+            
+            <div class="copy-group">
+                <input type="text" id="blobUrl" class="copy-input" readonly value="...">
+                <button class="cp-btn" onclick="copyUrl()">COPY</button>
+            </div>
+            
+            <button onclick="closeModal()" style="margin-top:15px; background:none; border:none; color:var(--text-gray); cursor:pointer;">Close</button>
         </div>
     </div>
-
-    <!-- Upload -->
-    <div class="upload-area" id="dropZone">
-        <input type="file" id="fileInput" multiple accept="image/*" style="display:none">
-        <i class="fas fa-cloud-arrow-up"></i>
-        <h3>Click or Drag Images Here</h3>
-        <p>Supports High-Res JPG, PNG, WEBP</p>
-    </div>
-
-    <!-- Grid -->
-    <div class="grid-header">
-        <span style="font-weight:700; color:var(--text-muted)">Selected Images</span>
-        <span class="badge-count" id="countBadge">0 Files</span>
-    </div>
-    <div class="image-grid" id="imageGrid"></div>
-
-</div>
-
-<!-- Sticky Action Bar -->
-<div class="action-bar">
-    <button class="btn-generate" id="generateBtn" onclick="generatePDF()" disabled>
-        <i class="fas fa-magic"></i> Generate PDF
-    </button>
-</div>
-
-<!-- Copyright Section -->
-<div class="copyright-section">
-    <div class="copyright-text">© 2025 Faizan Ahmad All Rights Reserved.</div>
-    <a href="https://www.facebook.com" target="_blank" class="copyright-link">
-        <h2 class="copyright-name">MUHAMMAD FAIZAN AHMED</h2>
-    </a>
-</div>
-
-<!-- Result Modal -->
-<div class="modal-overlay" id="resultModal">
-    <div class="modal-box">
-        <div style="font-size:50px; color:var(--success); margin-bottom:15px;"><i class="fas fa-check-circle"></i></div>
-        <h2 style="margin:0;">PDF Ready!</h2>
-        <p style="color:var(--text-muted);">Your document has been compiled successfully.</p>
-        
-        <a href="#" id="finalDownloadLink" class="btn-download" download target="_blank">
-            <i class="fas fa-download"></i> Download PDF
-        </a>
-
-        <div class="copy-box">
-            <input type="text" id="linkInput" class="copy-input" readonly value="...">
-            <button class="btn-copy" onclick="copyToClipboard()"><i class="fas fa-copy"></i> Copy</button>
-        </div>
-        
-        <button onclick="closeModal()" style="margin-top:20px; background:none; border:none; color:var(--text-muted); cursor:pointer; font-weight:600;">Close</button>
-    </div>
-</div>
-
-<!-- Toast -->
-<div id="toast">Notification Message</div>
 
 <script>
-    // --- VARIABLES ---
+    // --- STATE MANAGEMENT ---
+    const grid = document.getElementById('imageGrid');
     const fileInput = document.getElementById('fileInput');
     const dropZone = document.getElementById('dropZone');
-    const grid = document.getElementById('imageGrid');
-    const generateBtn = document.getElementById('generateBtn');
     let imageStore = {};
-    let uniqueIdCounter = 0;
+    let idCounter = 0;
+    let selectedQuality = 0.6; // Default Medium
 
-    // --- SORTABLE JS (Drag & Drop Reordering) ---
-    const sortable = new Sortable(grid, {
-        animation: 150,
+    // --- INIT ---
+    // Load Settings from LocalStorage
+    window.onload = function() {
+        if(localStorage.getItem('titan_fileName')) document.getElementById('fileName').value = localStorage.getItem('titan_fileName');
+        if(localStorage.getItem('titan_author')) document.getElementById('metaAuthor').value = localStorage.getItem('titan_author');
+        if(localStorage.getItem('titan_subject')) document.getElementById('metaSubject').value = localStorage.getItem('titan_subject');
+        log("System initialized.");
+    };
+
+    // Sortable Drag & Drop
+    new Sortable(grid, { 
+        animation: 150, 
         ghostClass: 'sortable-ghost',
-        onEnd: updatePageNumbers // Update numbers after drag
+        onEnd: updateCounts
     });
 
-    // --- EVENT LISTENERS ---
-    dropZone.addEventListener('click', () => fileInput.click());
-    
-    // Drag effects
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropZone.addEventListener(eventName, (e) => {
-            e.preventDefault();
-            dropZone.style.borderColor = 'var(--primary)';
-            dropZone.style.background = '#e0e7ff';
-        }, false);
-    });
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, (e) => {
-            e.preventDefault();
-            dropZone.style.borderColor = '#cbd5e1';
-            dropZone.style.background = 'rgba(255,255,255,0.5)';
-        }, false);
-    });
+    // --- FUNCTIONS ---
 
-    dropZone.addEventListener('drop', (e) => handleFiles(e.dataTransfer.files));
-    fileInput.addEventListener('change', (e) => { handleFiles(e.target.files); fileInput.value = ''; });
-
-    document.getElementById('qualityRange').addEventListener('input', (e) => {
-        document.getElementById('qualityVal').innerText = Math.round(e.target.value * 100) + "%";
-    });
-
-    // --- CORE FUNCTIONS ---
-
-    function handleFiles(files) {
-        let added = 0;
-        Array.from(files).forEach(file => {
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = (e) => addImageCard(e.target.result);
-                reader.readAsDataURL(file);
-                added++;
-            }
-        });
-        if(added > 0) showToast(`${added} Images Added`);
+    function saveSettings() {
+        localStorage.setItem('titan_fileName', document.getElementById('fileName').value);
+        localStorage.setItem('titan_author', document.getElementById('metaAuthor').value);
+        localStorage.setItem('titan_subject', document.getElementById('metaSubject').value);
     }
 
-    function addImageCard(base64) {
-        uniqueIdCounter++;
-        const id = `img-${uniqueIdCounter}`;
-        imageStore[id] = { src: base64, rotation: 0 };
+    function setQuality(val, btn) {
+        selectedQuality = val;
+        document.querySelectorAll('.q-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        log(`Compression set to: ${val === 1 ? 'Max' : val === 0.3 ? 'Low' : 'Medium'}`);
+    }
+
+    function log(msg) {
+        const consoleEl = document.getElementById('consoleLog');
+        const time = new Date().toLocaleTimeString().split(' ')[0];
+        consoleEl.innerHTML = `<span>[${time}]</span> > ${msg}`;
+    }
+
+    // --- UPLOAD HANDLERS ---
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--accent)'; });
+    dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = 'var(--border)'; });
+    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--border)'; handleFiles(e.dataTransfer.files); });
+    fileInput.addEventListener('change', (e) => { handleFiles(e.target.files); fileInput.value = ''; });
+
+    function handleFiles(files) {
+        let count = 0;
+        Array.from(files).forEach(file => {
+            if(!file.type.startsWith('image/')) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                addCard(e.target.result);
+            };
+            reader.readAsDataURL(file);
+            count++;
+        });
+        if(count > 0) log(`Imported ${count} images.`);
+    }
+
+    function addCard(src) {
+        idCounter++;
+        const id = `img-${idCounter}`;
+        imageStore[id] = { src: src, rotation: 0 };
 
         const div = document.createElement('div');
-        div.className = 'img-card';
+        div.className = 'card';
         div.setAttribute('data-id', id);
         div.innerHTML = `
-            <div class="page-number">0</div>
-            <img src="${base64}" class="img-preview" id="preview-${id}">
-            <div class="card-tools">
-                <button class="tool-btn" onclick="rotateImg('${id}')" title="Rotate"><i class="fas fa-rotate-right"></i></button>
-                <button class="tool-btn delete" onclick="removeImg(this, '${id}')" title="Remove"><i class="fas fa-trash-alt"></i></button>
+            <img src="${src}" id="view-${id}">
+            <div class="card-meta">
+                <span class="pg-num">PAGE <span class="pg-idx">0</span></span>
+                <div>
+                    <button class="icon-btn" onclick="rotate('${id}')" title="Rotate"><i class="fas fa-rotate-right"></i></button>
+                    <button class="icon-btn del" onclick="remove('${id}')" title="Remove"><i class="fas fa-xmark"></i></button>
+                </div>
             </div>
         `;
         grid.appendChild(div);
-        updateUI();
+        updateCounts();
     }
 
-    function rotateImg(id) {
+    function rotate(id) {
         const data = imageStore[id];
         data.rotation = (data.rotation + 90) % 360;
-        document.getElementById(`preview-${id}`).style.transform = `rotate(${data.rotation}deg)`;
+        document.getElementById(`view-${id}`).style.transform = `rotate(${data.rotation}deg)`;
     }
 
-    function removeImg(btn, id) {
-        btn.closest('.img-card').remove();
+    function remove(id) {
+        document.querySelector(`[data-id="${id}"]`).remove();
         delete imageStore[id];
-        updateUI();
+        updateCounts();
     }
 
     function clearAll() {
-        if (Object.keys(imageStore).length === 0) return;
-        if(confirm("Delete all images?")) {
+        if(confirm("Clear workspace?")) {
             grid.innerHTML = '';
             imageStore = {};
-            updateUI();
-            showToast("All images cleared");
+            updateCounts();
+            log("Workspace cleared.");
         }
     }
 
-    function updateUI() {
-        const cards = grid.querySelectorAll('.img-card');
-        generateBtn.disabled = cards.length === 0;
-        document.getElementById('countBadge').innerText = `${cards.length} Files`;
-        updatePageNumbers();
-    }
-
-    function updatePageNumbers() {
-        const cards = grid.querySelectorAll('.img-card');
-        cards.forEach((card, index) => {
-            card.querySelector('.page-number').innerText = index + 1;
-        });
-    }
-
-    // --- PDF GENERATION ENGINE ---
-    
-    async function generatePDF() {
-        const cards = grid.querySelectorAll('.img-card');
-        if (cards.length === 0) return;
-
-        // UI Loading State
-        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-        generateBtn.disabled = true;
-
-        // Settings
-        const quality = parseFloat(document.getElementById('qualityRange').value);
-        const marginType = document.getElementById('marginSelect').value;
-        const pageSize = document.getElementById('pageSize').value; // 'a4' or 'letter'
-        const orientation = document.getElementById('orientation').value; // 'p' or 'l'
+    function updateCounts() {
+        const cards = grid.querySelectorAll('.card');
+        document.getElementById('countVal').innerText = cards.length;
+        document.getElementById('generateBtn').disabled = cards.length === 0;
         
-        const { jsPDF } = window.jspdf;
-        // Initialize PDF with user settings
-        const doc = new jsPDF({
-            orientation: orientation,
-            unit: 'mm',
-            format: pageSize
+        // Update Page Numbers visually
+        cards.forEach((card, idx) => {
+            card.querySelector('.pg-idx').innerText = idx + 1;
         });
 
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const pageHeight = doc.internal.pageSize.getHeight();
+        // Mock Size Calc (Estimating base64 size)
+        let total = 0;
+        for(let k in imageStore) total += imageStore[k].src.length * 0.75; // Approx bytes
+        document.getElementById('sizeVal').innerText = (total / (1024*1024)).toFixed(1) + " MB";
+    }
 
-        // Calculate Margin
-        let margin = 0;
-        if (marginType === 'small') margin = 10;
-        if (marginType === 'large') margin = 20;
+    // --- GENERATION ENGINE ---
+    async function generatePDF() {
+        const btn = document.getElementById('generateBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        btn.disabled = true;
+        log("Starting PDF compilation...");
 
-        const usableW = pageWidth - (margin * 2);
-        const usableH = pageHeight - (margin * 2);
+        try {
+            const { jsPDF } = window.jspdf;
+            const pageSize = document.getElementById('pageSize').value;
+            const orientation = document.getElementById('orientation').value;
+            const doc = new jsPDF({ format: pageSize, orientation: orientation, unit: 'mm' });
 
-        // Process Images
-        for (let i = 0; i < cards.length; i++) {
-            const id = cards[i].getAttribute('data-id');
-            const data = imageStore[id];
+            // Set Metadata
+            doc.setProperties({
+                title: document.getElementById('fileName').value || 'Document',
+                subject: document.getElementById('metaSubject').value,
+                author: document.getElementById('metaAuthor').value,
+                creator: 'Titanium PDF Suite'
+            });
 
-            // Wait for rotation processing
-            const processedImg = await processImage(data.src, data.rotation, quality);
+            const cards = grid.querySelectorAll('.card');
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const margin = 10;
 
-            // Calculate Dimensions (Fit to Page)
-            const imgProps = doc.getImageProperties(processedImg);
-            const imgRatio = imgProps.width / imgProps.height;
-            
-            let finalW = usableW;
-            let finalH = finalW / imgRatio;
+            for (let i = 0; i < cards.length; i++) {
+                const id = cards[i].getAttribute('data-id');
+                const data = imageStore[id];
 
-            // If height is too big, fit by height instead
-            if (finalH > usableH) {
-                finalH = usableH;
-                finalW = finalH * imgRatio;
+                // Rotate/Compress via Canvas
+                const processedImg = await processImage(data.src, data.rotation, selectedQuality);
+
+                const imgProps = doc.getImageProperties(processedImg);
+                const ratio = imgProps.width / imgProps.height;
+                
+                const availW = pageWidth - (margin * 2);
+                const availH = pageHeight - (margin * 2);
+                
+                let w = availW;
+                let h = w / ratio;
+
+                if (h > availH) {
+                    h = availH;
+                    w = h * ratio;
+                }
+
+                if (i > 0) doc.addPage();
+                doc.addImage(processedImg, 'JPEG', margin + (availW - w)/2, margin + (availH - h)/2, w, h);
+                log(`Processed page ${i+1}/${cards.length}`);
             }
 
-            // Center Image
-            const x = margin + (usableW - finalW) / 2;
-            const y = margin + (usableH - finalH) / 2;
+            // Output
+            let fname = document.getElementById('fileName').value || 'Titanium-Doc';
+            if(!fname.endsWith('.pdf')) fname += '.pdf';
 
-            if (i > 0) doc.addPage();
-            doc.addImage(processedImg, 'JPEG', x, y, finalW, finalH);
+            const blob = doc.output('blob');
+            const url = URL.createObjectURL(blob);
+
+            const link = document.getElementById('finalLink');
+            link.href = url;
+            link.download = fname;
+            document.getElementById('blobUrl').value = url;
+            
+            document.getElementById('resultModal').style.display = 'flex';
+            log("PDF generation complete.");
+
+        } catch (err) {
+            console.error(err);
+            alert("Error generating PDF");
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }
-
-        // Finalize
-        let fname = document.getElementById('fileName').value.trim() || 'Document';
-        if (!fname.toLowerCase().endsWith('.pdf')) fname += '.pdf';
-
-        const blob = doc.output('blob');
-        const url = URL.createObjectURL(blob);
-
-        // Update Modal
-        const dLink = document.getElementById('finalDownloadLink');
-        dLink.href = url;
-        dLink.download = fname;
-        
-        document.getElementById('linkInput').value = url;
-        document.getElementById('resultModal').style.display = 'flex';
-
-        // Reset Button
-        generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate PDF';
-        generateBtn.disabled = false;
-        showToast("PDF Generated Successfully!");
     }
 
-    // Helper: Rotate & Compress
     function processImage(src, rotation, quality) {
         return new Promise(resolve => {
             const img = new Image();
             img.src = src;
             img.onload = () => {
-                if(rotation === 0 && quality === 1.0) {
-                    resolve(src); // No change needed
-                    return;
-                }
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                
-                if(rotation === 90 || rotation === 270) {
+
+                if (rotation === 90 || rotation === 270) {
                     canvas.width = img.height;
                     canvas.height = img.width;
                 } else {
@@ -640,33 +608,21 @@
                     canvas.height = img.height;
                 }
 
-                ctx.translate(canvas.width/2, canvas.height/2);
+                ctx.translate(canvas.width / 2, canvas.height / 2);
                 ctx.rotate(rotation * Math.PI / 180);
-                ctx.drawImage(img, -img.width/2, -img.height/2);
+                ctx.drawImage(img, -img.width / 2, -img.height / 2);
                 
                 resolve(canvas.toDataURL('image/jpeg', quality));
             };
         });
     }
 
-    // --- UTILS ---
-    function closeModal() {
-        document.getElementById('resultModal').style.display = 'none';
-    }
-
-    function copyToClipboard() {
-        const copyText = document.getElementById("linkInput");
+    function closeModal() { document.getElementById('resultModal').style.display = 'none'; }
+    function copyUrl() {
+        const copyText = document.getElementById("blobUrl");
         copyText.select();
-        copyText.setSelectionRange(0, 99999);
         navigator.clipboard.writeText(copyText.value);
-        showToast("Link Copied to Clipboard!");
-    }
-
-    function showToast(msg) {
-        const x = document.getElementById("toast");
-        x.innerText = msg;
-        x.className = "show";
-        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        log("Link copied to clipboard.");
     }
 </script>
 
