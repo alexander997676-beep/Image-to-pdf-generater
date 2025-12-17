@@ -3,141 +3,486 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image to PDF Link Generator</title>
+    <title>Ultra PDF Converter Suite</title>
+    <!-- Icons Library -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --danger: #ef4444;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
             display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 25px;
+            color: white;
+            text-align: center;
+        }
+        .header h1 { margin: 0; font-size: 24px; }
+        .header p { margin: 5px 0 0; opacity: 0.9; font-size: 14px; }
+
+        /* Toolbar / Settings */
+        .toolbar {
+            padding: 15px 25px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .setting-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        label { font-size: 14px; font-weight: 600; color: #4b5563; }
+
+        select, input[type="range"] {
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #d1d5db;
+        }
+
+        /* Upload Area */
+        .upload-zone {
+            margin: 20px;
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f9fafb;
+        }
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: #eef2ff;
+        }
+        .upload-zone i { font-size: 40px; color: var(--primary); margin-bottom: 10px; }
+
+        /* Grid for Images */
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            padding: 0 25px 25px;
+        }
+
+        .img-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 8px;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+            cursor: move; /* Drag cursor */
+        }
+        
+        .img-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+
+        .img-preview {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 6px;
+            background-color: #eee;
+        }
+
+        /* Card Actions */
+        .card-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+        }
+
+        .btn-icon {
+            background: #f3f4f6;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            color: #4b5563;
+            transition: 0.2s;
+        }
+        .btn-icon:hover { background: #e5e7eb; }
+        .btn-delete:hover { background: #fee2e2; color: var(--danger); }
+
+        /* Footer Actions */
+        .footer {
+            padding: 20px 25px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filename-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
+
+        .btn-clear {
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn-clear:hover { background: #fee2e2; }
+
+        /* Result Modal */
+        #resultOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            background-color: #eef2f3;
+            z-index: 1000;
         }
-        .container {
+        .result-box {
             background: white;
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             text-align: center;
-            width: 350px;
+            width: 300px;
+            animation: popIn 0.3s;
         }
-        h2 { color: #333; }
-        
-        /* Input Style */
-        input[type="file"] {
-            margin: 20px 0;
-            padding: 10px;
-            background: #f8f9fa;
-            border: 1px dashed #ccc;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        /* Button Style */
-        .convert-btn {
-            background-color: #007bff;
+        .success-icon { font-size: 50px; color: #10b981; margin-bottom: 15px; }
+        .download-btn {
+            display: block;
+            background: #10b981;
             color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-            transition: background 0.3s;
-        }
-        .convert-btn:hover { background-color: #0056b3; }
-
-        /* Generated Link Style */
-        #linkContainer {
-            margin-top: 25px;
-            display: none; /* Pehle chhupa rahega */
-            padding: 15px;
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            border-radius: 6px;
-        }
-        #pdfLink {
-            color: #155724;
-            font-weight: bold;
             text-decoration: none;
-            font-size: 18px;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-weight: bold;
         }
-        #pdfLink:hover { text-decoration: underline; }
+
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Image to PDF</h2>
-    
-    <input type="file" id="imageInput" accept="image/*">
-    
-    <button class="convert-btn" onclick="generatePDFLink()">Generate PDF Link</button>
+    <div class="header">
+        <h1><i class="fas fa-file-pdf"></i> Ultra PDF Converter</h1>
+        <p>Rearrange, Rotate & Compress Images before converting</p>
+    </div>
 
-    <!-- Yahan Link Banega -->
-    <div id="linkContainer">
-        <p>✅ Link Ready:</p>
-        <a id="pdfLink" href="#" download="my-file.pdf" target="_blank">Download PDF Here</a>
+    <!-- Settings Bar -->
+    <div class="toolbar">
+        <div class="setting-group">
+            <label><i class="fas fa-compress-arrows-alt"></i> Quality:</label>
+            <input type="range" id="qualityRange" min="0.1" max="1.0" step="0.1" value="0.8">
+            <span id="qualityVal" style="font-size: 12px; color: #666;">80%</span>
+        </div>
+        <div class="setting-group">
+            <label><i class="fas fa-border-style"></i> Margin:</label>
+            <select id="marginSelect">
+                <option value="none">Fit Page (No Margin)</option>
+                <option value="small">Small Margin</option>
+                <option value="large">Large Margin</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Upload Area -->
+    <div class="upload-zone" id="dropZone">
+        <input type="file" id="fileInput" multiple accept="image/*" style="display:none">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <h3>Click or Drag Images Here</h3>
+        <p style="color:#666">Supports JPG, PNG, WEBP</p>
+    </div>
+
+    <!-- Images Container (Sortable) -->
+    <div class="image-grid" id="imageGrid">
+        <!-- Previews will appear here -->
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <button class="btn-clear" onclick="clearAll()">Clear All</button>
+        <input type="text" id="fileName" class="filename-input" placeholder="Enter file name (e.g. My-Scanned-Docs)" value="My-Document">
+        <button class="btn-primary" id="generateBtn" onclick="generatePDF()">Generate PDF Link</button>
     </div>
 </div>
 
-<!-- PDF Library -->
+<!-- Success Modal -->
+<div id="resultOverlay">
+    <div class="result-box">
+        <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+        <h3>PDF Ready!</h3>
+        <p>Your file has been processed.</p>
+        <a id="finalDownloadLink" href="#" class="download-btn" target="_blank" download>
+            <i class="fas fa-download"></i> Download Now
+        </a>
+        <button onclick="closeModal()" style="margin-top:10px; background:none; border:none; color:#666; cursor:pointer">Close</button>
+    </div>
+</div>
+
+<!-- Scripts: jsPDF for generation, SortableJS for Drag&Drop -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 
 <script>
-    async function generatePDFLink() {
-        const { jsPDF } = window.jspdf;
-        const input = document.getElementById('imageInput');
-        const linkContainer = document.getElementById('linkContainer');
-        const pdfLink = document.getElementById('pdfLink');
-        const btn = document.querySelector('.convert-btn');
+    // --- Variables ---
+    const fileInput = document.getElementById('fileInput');
+    const dropZone = document.getElementById('dropZone');
+    const grid = document.getElementById('imageGrid');
+    const qualityRange = document.getElementById('qualityRange');
+    const qualityVal = document.getElementById('qualityVal');
+    
+    // Store image data (Map ID to Data)
+    let imageStore = {}; 
+    let uniqueIdCounter = 0;
 
-        if (input.files && input.files[0]) {
-            // Button ka text badal kar loading dikhate hain
-            btn.innerText = "Generating Link...";
-            btn.disabled = true;
+    // --- Initialize SortableJS (For Drag & Drop Reordering) ---
+    new Sortable(grid, {
+        animation: 150,
+        ghostClass: 'sortable-ghost'
+    });
 
-            const file = input.files[0];
+    // --- Event Listeners ---
+    dropZone.addEventListener('click', () => fileInput.click());
+    
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = '#6366f1';
+    });
+    
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.style.borderColor = '#d1d5db';
+    });
+    
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = '#d1d5db';
+        handleFiles(e.dataTransfer.files);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+        fileInput.value = '';
+    });
+
+    qualityRange.addEventListener('input', (e) => {
+        qualityVal.innerText = Math.round(e.target.value * 100) + "%";
+    });
+
+    // --- Functions ---
+
+    function handleFiles(files) {
+        Array.from(files).forEach(file => {
+            if (!file.type.startsWith('image/')) return;
+            
             const reader = new FileReader();
-
-            reader.onload = function(event) {
-                const imgData = event.target.result;
-                const img = new Image();
-                img.src = imgData;
-
-                img.onload = function() {
-                    const doc = new jsPDF();
-                    
-                    // Image ko A4 size ke hisaab se set karna
-                    const imgProps = doc.getImageProperties(imgData);
-                    const pdfWidth = doc.internal.pageSize.getWidth();
-                    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-                    doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-
-                    // ***** IMPORTANT PART: LINK GENERATION *****
-                    
-                    // PDF ka Blob data banaya
-                    const pdfBlob = doc.output('blob');
-                    
-                    // Browser memory mein ek URL create kiya
-                    const url = URL.createObjectURL(pdfBlob);
-
-                    // Link tag (<a>) mein URL set kiya
-                    pdfLink.href = url;
-                    
-                    // Link ko dikhana (Show the link)
-                    linkContainer.style.display = 'block';
-
-                    // Button wapis normal karna
-                    btn.innerText = "Generate Again";
-                    btn.disabled = false;
-                };
+            reader.onload = (e) => {
+                addImageToGrid(e.target.result);
             };
             reader.readAsDataURL(file);
-        } else {
-            alert("Please select an image first!");
+        });
+    }
+
+    function addImageToGrid(base64Data) {
+        uniqueIdCounter++;
+        const id = `img-${uniqueIdCounter}`;
+        
+        // Store data with default rotation 0
+        imageStore[id] = { src: base64Data, rotation: 0 };
+
+        const div = document.createElement('div');
+        div.className = 'img-card';
+        div.setAttribute('data-id', id);
+        div.innerHTML = `
+            <img src="${base64Data}" class="img-preview" id="preview-${id}">
+            <div class="card-actions">
+                <button class="btn-icon" onclick="rotateImage('${id}')" title="Rotate"><i class="fas fa-redo"></i></button>
+                <button class="btn-icon btn-delete" onclick="removeImage(this, '${id}')" title="Delete"><i class="fas fa-times"></i></button>
+            </div>
+        `;
+        grid.appendChild(div);
+    }
+
+    // Rotate Logic
+    window.rotateImage = function(id) {
+        const imgData = imageStore[id];
+        imgData.rotation = (imgData.rotation + 90) % 360;
+        
+        // Visual Rotation (CSS)
+        const imgEl = document.getElementById(`preview-${id}`);
+        imgEl.style.transform = `rotate(${imgData.rotation}deg)`;
+    };
+
+    window.removeImage = function(btn, id) {
+        btn.closest('.img-card').remove();
+        delete imageStore[id];
+    };
+
+    window.clearAll = function() {
+        if(confirm("Are you sure you want to clear all images?")) {
+            grid.innerHTML = '';
+            imageStore = {};
         }
+    };
+
+    // --- PDF Generation Logic (The Complex Part) ---
+    async function generatePDF() {
+        const cards = grid.querySelectorAll('.img-card');
+        if (cards.length === 0) {
+            alert("Please add images first!");
+            return;
+        }
+
+        const btn = document.getElementById('generateBtn');
+        btn.innerText = "Processing...";
+        btn.disabled = true;
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        const marginSetting = document.getElementById('marginSelect').value;
+        const quality = parseFloat(document.getElementById('qualityRange').value);
+
+        for (let i = 0; i < cards.length; i++) {
+            const id = cards[i].getAttribute('data-id');
+            const data = imageStore[id];
+            
+            // Handle Rotation via Canvas
+            const finalImgData = await getRotatedImage(data.src, data.rotation, quality);
+
+            const imgProps = doc.getImageProperties(finalImgData);
+            const pdfWidth = doc.internal.pageSize.getWidth();
+            const pdfHeight = doc.internal.pageSize.getHeight();
+            
+            let x = 0, y = 0, w = pdfWidth, h = 0;
+
+            // Margin Logic
+            let margin = 0;
+            if (marginSetting === 'small') margin = 10;
+            if (marginSetting === 'large') margin = 20;
+
+            const usableWidth = pdfWidth - (margin * 2);
+            const usableHeight = pdfHeight - (margin * 2);
+
+            // Calculate Dimensions to fit
+            const ratio = imgProps.width / imgProps.height;
+            w = usableWidth;
+            h = w / ratio;
+
+            // If height exceeds page, scale down
+            if (h > usableHeight) {
+                h = usableHeight;
+                w = h * ratio;
+            }
+
+            // Center image
+            x = margin + (usableWidth - w) / 2;
+            y = margin + (usableHeight - h) / 2;
+
+            if (i > 0) doc.addPage();
+            doc.addImage(finalImgData, 'JPEG', x, y, w, h);
+        }
+
+        // Finalize
+        let name = document.getElementById('fileName').value.trim() || 'document';
+        if(!name.endsWith('.pdf')) name += '.pdf';
+
+        const pdfBlob = doc.output('blob');
+        const url = URL.createObjectURL(pdfBlob);
+
+        document.getElementById('finalDownloadLink').href = url;
+        document.getElementById('finalDownloadLink').download = name;
+        document.getElementById('resultOverlay').style.display = 'flex';
+
+        btn.innerText = "Generate PDF Link";
+        btn.disabled = false;
+    }
+
+    // Helper: Rotates image using Canvas and returns new DataURL
+    function getRotatedImage(src, rotation, quality) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.src = src;
+            img.onload = () => {
+                if (rotation === 0) {
+                    // No rotation needed, just return original (or compressed)
+                    // Note: To apply compression strictly we re-draw, but for speed 0deg can be direct.
+                    // Let's re-draw to ensure quality setting applies to all.
+                }
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Swap width/height if 90 or 270 degrees
+                if (rotation === 90 || rotation === 270) {
+                    canvas.width = img.height;
+                    canvas.height = img.width;
+                } else {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                }
+
+                // Pivot to center
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.rotate(rotation * Math.PI / 180);
+                ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+        });
+    }
+
+    window.closeModal = function() {
+        document.getElementById('resultOverlay').style.display = 'none';
     }
 </script>
 
